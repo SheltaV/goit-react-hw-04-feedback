@@ -1,44 +1,40 @@
-import { Component } from "react";
+import { useState } from "react";
 import { FeedbackOptions } from "./FeedbackList/FeedbackList";
 import { Statistics } from "./Statistics/Statistics";
 import { Section } from './Section/Section';
 import { Notification } from "./Notification/Notification";
 
-export class App extends Component {
-  state = {
-    good: 0,
-    neutral: 0,
-    bad: 0
-  };
+export const App = () => {
+  const [state, setState] = useState({good: 0, neutral: 0, bad: 0});
 
-  handleClickCount = (option) => {
-    this.setState((prevState) => {
-      return {
-        [option]: prevState[option] + 1,
-        };
-    });
+  const { good, neutral, bad } = state;
+
+  const keys = Object.keys(state);
+  const values = Object.values(state);
+
+  const clickCount = (key) => {
+    setState(prevState => ({
+      ...prevState,
+      [key]: prevState[key] + 1
+  }))
+  }
+  
+  let total = values.reduce(function (sum, elem) {
+  return sum + elem
+  }, 0)
+  
+  const getPositive = () => {
+    const sum = Math.round((good / total) * 100)
+    return sum
   }
 
-  countTotalFeedback = () => {
-    const { good, neutral, bad } = this.state;
-    return good + neutral + bad;
-  }
+  const positive = getPositive()
 
-  countPositiveFeedbackPercentage = () => {
-    const { good, neutral, bad } = this.state;
-    return Math.round((good / (good + neutral + bad)) * 100)
-  }
-
-
-  render() {
-    const { good, neutral, bad } = this.state;
-    const total = this.countTotalFeedback();
-    const positive = this.countPositiveFeedbackPercentage();
-    return (
+  return (
       <>
       <Section title='Please leave feedback'>
-      <FeedbackOptions options={Object.keys(this.state)}
-          onLeaveFeedback={this.handleClickCount} />
+      <FeedbackOptions options={keys}
+          onLeaveFeedback={clickCount} />
       </Section>
       <Section title='Statistics'>
         {total > 0 ? <Statistics good={good}
@@ -49,5 +45,5 @@ export class App extends Component {
       </Section>
       </>
       )
-    }
+
   };
